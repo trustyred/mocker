@@ -23,23 +23,32 @@ class RunCommand(BaseDockerCommand):
         pass
 
     def run(self, *args, **kwargs):
+        # 获得所有镜像的列表
         images = ImagesCommand().list_images()
+        # 获得镜像的名字
         image_name = kwargs['<name>']
         ip_last_octet = 103 # TODO : configurable
 
+        #通过传入的镜像名字，从而获得镜像的json文件(里面存储有镜像的manifest)
         match = [i[3] for i in images if i[0] == image_name][0]
-
+        #读取镜像的manifest文件
         target_file = os.path.join(_base_dir_, match)
         with open(target_file) as tf:
             image_details = json.loads(tf.read())
+
         # setup environment details
+        # 从manifest文件中获得镜像的体系结构(arch)，配置(conifg),启动命令(Cmd)等信息
         state = json.loads(image_details['history'][0]['v1Compatibility'])
 
         # Extract information about this container
+        # 获得即将启动的容器内部的环境变量
         env_vars = state['config']['Env']
+        # 获得启动容器时候运行的命令，并将其从列表转化为字符串
+        # 比如['/hello','-a','-b'] -> "/hello -a -b"
         start_cmd = subprocess.list2cmdline(state['config']['Cmd'])
+        # 获取容器的初始工作目录
         working_dir = state['config']['WorkingDir']
-
+        # 获得一个唯一ID
         id = uuid.uuid1()
 
         # unique-ish name
