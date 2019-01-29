@@ -45,7 +45,7 @@ class PullCommand(BaseDockerCommand):
         # get the manifest
         # 带着token去请求镜像的manifest
         manifest = self.get_manifest()
-
+        print(manifest)
         # save the manifest
         image_name_friendly = manifest['name'].replace('/', '_')
         with open(os.path.join(_base_dir_,
