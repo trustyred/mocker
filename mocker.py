@@ -14,6 +14,7 @@ def init_mocker_lib(path):
 
 if __name__ == '__main__':
     init_mocker_lib("path_to_mocker_Lib")
+    # 通过docopt库将mocker库中的__doc__变量解析成命令行参数
     arguments = docopt(mocker.__doc__, version=mocker.__version__)
     command = BaseDockerCommand
     if arguments['pull']:

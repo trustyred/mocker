@@ -10,12 +10,17 @@ class PullCommand(BaseDockerCommand):
     registry_base = 'https://registry-1.docker.io/v2'
 
     def __init__(self, *args, **kwargs):
+        #<name>是mocker镜像名字的key，通过它可以取到我们将要pull的镜像字符串
         self.image = kwargs['<name>']
         self.library = 'library'  # todo - user-defined libraries
+        #获取mocker镜像的tag，如果没有传递，那么就是"latest"
         self.tag = kwargs['<tag>'] if kwargs['<tag>'] is not None else 'latest'
 
     def auth(self, library, image):
         # request a v2 token
+        # 这里是向docker的认证服务器发送一个Token获取请求，这里的详细情况可以去Docker官网的
+        # 文章https://docs.docker.com/registry/spec/auth/token/了解
+        # 整个获取认证，并通过token去执行docker的基础操作(pull/push等)是基于OAuth2的
         token_req = requests.get(
             'https://auth.docker.io/token?service=registry.docker.io&scope=repository:%s/%s:pull'
             % (library, image))
@@ -33,9 +38,11 @@ class PullCommand(BaseDockerCommand):
 
     def run(self, *args, **kwargs):
         # login anonymously
+        # 从认证服务器获得token，并将token放入下一步的请求头中，这里的格式遵循OAuth2
         self.headers = {'Authorization': 'Bearer %s' % self.auth(self.library,
                                                                  self.image)}
         # get the manifest
+        # 带着token去请求镜像的manifest
         manifest = self.get_manifest()
 
         # save the manifest
