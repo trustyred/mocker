@@ -53,11 +53,13 @@ class PullCommand(BaseDockerCommand):
                                image_name_friendly+'.json'), 'w') as cache:
             cache.write(json.dumps(manifest))
         # save the layers to a new folder
+        # 创建存储镜像层的目录
         dl_path = os.path.join(_base_dir_, image_name_friendly, 'layers')
         if not os.path.exists(dl_path):
             os.makedirs(dl_path)
 
         # fetch each unique layer
+        # 获得每一层的镜像每一层的sha256
         layer_sigs = [layer['blobSum'] for layer in manifest['fsLayers']]
         unique_layer_sigs = set(layer_sigs)
 
@@ -69,12 +71,16 @@ class PullCommand(BaseDockerCommand):
         # download all the parts
         for sig in unique_layer_sigs:
             print('Fetching layer %s..' % sig)
+            # 拼接生成请求每一个镜像层的url
             url = '%s/%s/%s/blobs/%s' % (self.registry_base, self.library,
                                          self.image, sig)
+            # 拼接生成本地的层文件路径
             local_filename = os.path.join(dl_path, sig) + '.tar'
-
+            # 发起请求，这里注意一定要带着刚才的header，否则服务器会返回你是为认证用户
+            # request.get开启stream=true，这样会获得服务器的原始响应
             r = requests.get(url, stream=True, headers=self.headers)
             with open(local_filename, 'wb') as f:
+                # 将响应的内容存储到本地文件中
                 for chunk in r.iter_content(chunk_size=1024):
                     if chunk:
                         f.write(chunk)
@@ -84,5 +90,5 @@ class PullCommand(BaseDockerCommand):
                 for member in tar.getmembers()[:10]:
                     print('- ' + member.name)
                 print('...')
-
+                # 将tar包中的文件解压出来放在`contents_path`下
                 tar.extractall(str(contents_path))
