@@ -1,3 +1,4 @@
+#coding=utf-8
 #!/usr/bin/python
 from docopt import docopt
 import mocker
