@@ -91,4 +91,6 @@ class PullCommand(BaseDockerCommand):
                     print('- ' + member.name)
                 print('...')
                 # 将tar包中的文件解压出来放在`contents_path`下
+                # 这里下载的镜像层文件我想尝试使用机器上的`tar`命令去解开，然而发现没有成功，搜索之后发现，原来是解压的文件名字带有":"
+                # tar会以为是解压其他机器上的文件，需要指定--force-local才可以解压
                 tar.extractall(str(contents_path))
