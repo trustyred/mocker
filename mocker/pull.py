@@ -34,7 +34,7 @@ class PullCommand(BaseDockerCommand):
         manifest = requests.get('%s/%s/%s/manifests/%s' %
                                 (self.registry_base, self.library, self.image, self.tag),
                                 headers=self.headers)
-
+        print(type(manifest))
         return manifest.json()
 
     def run(self, *args, **kwargs):
@@ -45,9 +45,10 @@ class PullCommand(BaseDockerCommand):
         # get the manifest
         # 带着token去请求镜像的manifest
         manifest = self.get_manifest()
-        print(manifest)
         # save the manifest
+        #正常的manifest['name']中间是通过'/'来间隔的，在文件系统中是不允许出现这样命名的文件，所以替换了一次
         image_name_friendly = manifest['name'].replace('/', '_')
+        #将manifest的内容存储到文件系统上
         with open(os.path.join(_base_dir_,
                                image_name_friendly+'.json'), 'w') as cache:
             cache.write(json.dumps(manifest))
