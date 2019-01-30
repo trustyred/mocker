@@ -59,18 +59,23 @@ class RunCommand(BaseDockerCommand):
         mac = str(id.fields[5])[:2]
         
         layer_dir = os.path.join(_base_dir_, match.replace('.json', ''), 'layers', 'contents')
-
+        # IPDB比IPRoute对性能的消耗更少，因为它是异步的，并且会将系统返回的信息缓存起来，不会每次都加载所有信息
         with IPDB() as ipdb:
             veth0_name = 'veth0_'+name
             veth1_name = 'veth1_'+name
             netns_name = 'netns_'+name
             bridge_if_name = 'bridge0'
 
+            # 列出系统存在的网络设备名字
             existing_interfaces = ipdb.interfaces.keys()
 
             # Create a new virtual interface
+            # 创建一个双端的网络设备，一端与宿主机（也就是运行mocker的真实机器在一个网段），另一端与容器的网络在一个网段，这段先这样浅显的解释下
+            # 可能不是很准确
             with ipdb.create(kind='veth', ifname=veth0_name, peer=veth1_name) as i1:
+                # 将双端网络设备启动
                 i1.up()
+                # 查找网桥是否创建过，如果没有的话，创建一个名字为`bridge0`的网桥
                 if bridge_if_name not in existing_interfaces:
                     ipdb.create(kind='bridge', ifname=bridge_if_name).commit()
                 i1.set_target('master', bridge_if_name)
