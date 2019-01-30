@@ -52,11 +52,12 @@ class RunCommand(BaseDockerCommand):
         id = uuid.uuid1()
 
         # unique-ish name
+        # 获取前uuid的第五部分的前4个字符
         name = 'c_' + str(id.fields[5])[:4]
-
+        # 获取uuid的第五部分的前2个字符
         # unique-ish mac
         mac = str(id.fields[5])[:2]
-
+        
         layer_dir = os.path.join(_base_dir_, match.replace('.json', ''), 'layers', 'contents')
 
         with IPDB() as ipdb:

@@ -21,7 +21,9 @@ class ImagesCommand(BaseDockerCommand):
             if image_file.endswith('.json'):
                 with open(os.path.join(_base_dir_, image_file), 'r') as json_f:
                     image = json.loads(json_f.read())
+
                 image_base = os.path.join(_base_dir_, image_file.replace('.json', ''), 'layers')
+                # 计算所有tar文件的大小和
                 size = sum(os.path.getsize(os.path.join(image_base, f)) for f in
                            os.listdir(image_base)
                            if os.path.isfile(os.path.join(image_base, f)))
