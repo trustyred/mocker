@@ -135,9 +135,11 @@ class RunCommand(BaseDockerCommand):
                         # add process to cgroup
                         # 将当前的进程加载到cgroup里面
                         cg.add(pid)
-                        log.info("Working directory : %s" %layer_dir)
+                        log.info("Layer directory : %s" %layer_dir)
                         # 将文件系统的根路径切换到layer目录
-                        os.chroot(layer_dir)
+                        # 使用os.chroot应该先切换到目的目录
+                        os.chdir(layer_dir)
+                        os.chroot('.')
                         if working_dir != '':
                             log.info("Setting working directory to %s" % working_dir)
                             os.chdir(working_dir)
