@@ -153,10 +153,10 @@ class RunCommand(BaseDockerCommand):
                 for env in env_vars:
                     key,value = env.split('=',1)
                     env_dict[key] = value
-                log.info('container env: %s' env_dict)
+                log.info('container env: %s' str(env_dict)
                 log.info('Running "%s"' % cmd)
 
-                
+
                 # 在执行cmd之前先执行in_cgroup函数，这是subprocess.Popen函数里preexec_fn参数的意思
                 # 在这里找到了一个bug，应该把shell=True改成shell=False，因为在有些容器的环境内，可能并没有
                 # /bin/sh，就会导致执行的时候出错，比如library/hello-world这个镜像就只有一个hello文件
