@@ -39,6 +39,7 @@ class RunCommand(BaseDockerCommand):
 
         # setup environment details
         # 从manifest文件中获得镜像的体系结构(arch)，配置(conifg),启动命令(Cmd)等信息
+        # 默认获取history的第一层，也就是最新一层
         state = json.loads(image_details['history'][0]['v1Compatibility'])
 
         # Extract information about this container
@@ -123,7 +124,7 @@ class RunCommand(BaseDockerCommand):
                         pid = os.getpid()
                         # 创建当前用户的cgroup
                         cg = Cgroup(name)
-                        # 将环境变量设置到容器环境里
+                        # 将环境变量设置到容器环境里，bug，因为os.putenv并不会把环境变量加入当前环境
                         for env in env_vars:
                             log.info('Setting ENV %s' % env)
                             os.putenv(*env.split('=', 1))
@@ -148,12 +149,20 @@ class RunCommand(BaseDockerCommand):
                 # 获得启动容器的时候将要运行的命令
                 cmd = start_cmd
                 
+                env_dict = {}
+                for env in env_vars:
+                    key,value = env.split('=',1)
+                    env_dict[key] = value
+                log.info('container env: %s' env_dict)
                 log.info('Running "%s"' % cmd)
+
+                
                 # 在执行cmd之前先执行in_cgroup函数，这是subprocess.Popen函数里preexec_fn参数的意思
                 # 在这里找到了一个bug，应该把shell=True改成shell=False，因为在有些容器的环境内，可能并没有
                 # /bin/sh，就会导致执行的时候出错，比如library/hello-world这个镜像就只有一个hello文件
                 # 当shell=True的时候就一定会报错
-                process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=False)
+                
+                process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=False,env=env_dict)
                 process.wait()
                 # 输出容器进程的标准输出
                 print(process.stdout)
