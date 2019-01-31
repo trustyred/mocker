@@ -124,10 +124,9 @@ class RunCommand(BaseDockerCommand):
                         pid = os.getpid()
                         # 创建当前用户的cgroup
                         cg = Cgroup(name)
-                        # 将环境变量设置到容器环境里，bug，因为os.putenv并不会把环境变量加入当前环境
-                        for env in env_vars:
-                            log.info('Setting ENV %s' % env)
-                            os.putenv(*env.split('=', 1))
+                        # 将环境变量设置到容器环境里，bug，因为os.putenv可能不会修改os.environ的值
+                        # 详情可以看os库的文档
+                        
 
                         # Set network namespace
                         # 设置当前环境的网络命名空间
@@ -150,10 +149,11 @@ class RunCommand(BaseDockerCommand):
                 cmd = start_cmd
                 
                 env_dict = {}
+                #将环境变量通过subprocess，参数传入容器环境，而不是在preexec_fn函数中设置
                 for env in env_vars:
                     key,value = env.split('=',1)
                     env_dict[key] = value
-                log.info('container env: %s' str(env_dict)
+                log.info('container env: %s' %str(env_dict))
                 log.info('Running "%s"' % cmd)
 
 
