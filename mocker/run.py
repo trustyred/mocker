@@ -135,6 +135,7 @@ class RunCommand(BaseDockerCommand):
                         # add process to cgroup
                         # 将当前的进程加载到cgroup里面
                         cg.add(pid)
+                        log.info("Working directory : %s" %layer_dir)
                         # 将文件系统的根路径切换到layer目录
                         os.chroot(layer_dir)
                         if working_dir != '':
@@ -154,6 +155,7 @@ class RunCommand(BaseDockerCommand):
                 # 当shell=True的时候就一定会报错
                 process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=False)
                 process.wait()
+                # 输出容器进程的标准输出
                 print(process.stdout)
                 log.error(process.stderr)
             except Exception as e:
@@ -161,7 +163,9 @@ class RunCommand(BaseDockerCommand):
                 log.error(e)
             finally:
                 log.info('Finalizing')
+                # 关闭网络命名空间
                 NetNS(netns_name).close()
                 netns.remove(netns_name)
+                # 清除虚拟网络设备
                 ipdb.interfaces[veth0_name].remove()
                 log.info('done')
