@@ -81,6 +81,7 @@ class RunCommand(BaseDockerCommand):
                 i1.set_target('master', bridge_if_name)
 
             # Create a network namespace
+            # 创建一个新的名称空间
             netns.create(netns_name)
 
             # move the bridge interface into the new namespace
@@ -101,29 +102,39 @@ class RunCommand(BaseDockerCommand):
 
             try:
                 # setup cgroup directory for this user
+                # 获得当前的登陆用户
                 user = os.getlogin()
+                # 为登陆用户创建cgroup
                 create_user_cgroups(user)
 
                 # First we create the cgroup and we set it's cpu and memory limits
+                # 根据容器的用户名去创建Cgroup
                 cg = Cgroup(name)
+                # 限制最多占用cpu使用率为50%
                 cg.set_cpu_limit(50)  # TODO : get these as command line options
+                # 限制内存最多使用500MB
                 cg.set_memory_limit(500)
 
                 # Then we a create a function to add a process in the cgroup
                 def in_cgroup():
                     try:
+                        # 获得当前的pid
                         pid = os.getpid()
+                        # 创建当前用户的cgroup
                         cg = Cgroup(name)
+                        # 将环境变量设置到容器环境里
                         for env in env_vars:
                             log.info('Setting ENV %s' % env)
                             os.putenv(*env.split('=', 1))
 
                         # Set network namespace
+                        # 设置当前环境的网络命名空间
                         netns.setns(netns_name)
 
                         # add process to cgroup
+                        # 将当前的进程加载到cgroup里面
                         cg.add(pid)
-
+                        # 将文件系统的根路径切换到layer目录
                         os.chroot(layer_dir)
                         if working_dir != '':
                             log.info("Setting working directory to %s" % working_dir)
@@ -132,9 +143,15 @@ class RunCommand(BaseDockerCommand):
                         traceback.print_exc()
                         log.error("Failed to preexecute function")
                         log.error(e)
+                # 获得启动容器的时候将要运行的命令
                 cmd = start_cmd
+                
                 log.info('Running "%s"' % cmd)
-                process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=True)
+                # 在执行cmd之前先执行in_cgroup函数，这是subprocess.Popen函数里preexec_fn参数的意思
+                # 在这里找到了一个bug，应该把shell=True改成shell=False，因为在有些容器的环境内，可能并没有
+                # /bin/sh，就会导致执行的时候出错，比如library/hello-world这个镜像就只有一个hello文件
+                # 当shell=True的时候就一定会报错
+                process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=False)
                 process.wait()
                 print(process.stdout)
                 log.error(process.stderr)
