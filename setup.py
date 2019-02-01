@@ -10,5 +10,8 @@ setup(
     author='Anthony Shaw',
     author_email='gward@python.net',
     url='https://www.python.org/sigs/distutils-sig/',
-    packages=['distutils', 'distutils.command'],
-    scripts=['scripts/mocker'])
+    # py_modules = ['mocker'],
+    packages=['mocker'],
+    scripts=['scripts/mocker']
+    requires=['requests','docopt','']
+    )
