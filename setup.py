@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 import mocker
 
 setup(
-    name='Mocker',
+    name='mocker',
     version=mocker.__version__,
     description='Python example implementation of the Docker engine',
 
