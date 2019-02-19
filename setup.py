@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 import mocker
 
 setup(
     name='Mocker',
     version=mocker.__version__,
     description='Python example implementation of the Docker engine',
-    author='Anthony Shaw',
-    author_email='gward@python.net',
-    url='https://www.python.org/sigs/distutils-sig/',
-    packages=['distutils', 'distutils.command'],
-    scripts=['scripts/mocker'])
+    author='nored',
+    packages=find_packages(),
+    scripts=['scripts/mocker'],    
+    )
