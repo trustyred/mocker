@@ -30,7 +30,8 @@ class RunCommand(BaseDockerCommand):
         image_name = kwargs['<name>']
         # 允许用户自定义在启动容器的时候执行的命令
         cmd = kwargs['<cmd>']
-
+        # 将cmd从字符串的形式转化成列表形式，以方便下面subprocess的执行
+        cmd = cmd.split()
         ip_last_octet = 103 # TODO : configurable
 
         #通过传入的镜像名字，从而获得镜像的json文件(里面存储有镜像的manifest)
@@ -50,7 +51,9 @@ class RunCommand(BaseDockerCommand):
         env_vars = state['config']['Env']
         # 获得启动容器时候运行的命令，并将其从列表转化为字符串
         # 比如['/hello','-a','-b'] -> "/hello -a -b"
-        start_cmd = subprocess.list2cmdline(state['config']['Cmd'])
+        # start_cmd = subprocess.list2cmdline(state['config']['Cmd'])
+        # 由于现在是使用subprocess.Popen的shell=False方式去执行命令，所以也就不需要进行转换了
+        start_cmd = state['config']['Cmd']
         # 获取容器的初始工作目录
         working_dir = state['config']['WorkingDir']
         # 获得一个唯一ID
