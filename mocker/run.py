@@ -28,6 +28,9 @@ class RunCommand(BaseDockerCommand):
         images = ImagesCommand().list_images()
         # 获得镜像的名字
         image_name = kwargs['<name>']
+        # 允许用户自定义在启动容器的时候执行的命令
+        cmd = kwargs['<cmd>']
+
         ip_last_octet = 103 # TODO : configurable
 
         #通过传入的镜像名字，从而获得镜像的json文件(里面存储有镜像的manifest)
@@ -149,7 +152,8 @@ class RunCommand(BaseDockerCommand):
                         log.error("Failed to preexecute function")
                         log.error(e)
                 # 获得启动容器的时候将要运行的命令
-                cmd = start_cmd
+                if not cmd:
+                    cmd = start_cmd
                 
                 env_dict = {}
                 #将环境变量通过subprocess，参数传入容器环境，而不是在preexec_fn函数中设置
