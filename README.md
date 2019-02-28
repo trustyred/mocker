@@ -68,8 +68,7 @@ Finalizing
 done
 shutdown in progress
 ```
-## 各版本功能
-0.0.1版本已经完成，完成工作有代码的中文注释，基本运行问题的修复
+## 正在开发的0.0.2版本功能
 0.0.2版本准备继续完善整个mocker的功能
 - mocker ps功能
 - mocker 端口映射功能
