@@ -28,10 +28,9 @@ class RunCommand(BaseDockerCommand):
         images = ImagesCommand().list_images()
         # 获得镜像的名字
         image_name = kwargs['<name>']
-        # 允许用户自定义在启动容器的时候执行的命令
+        # 允许用户自定义在启动容器的时候执行的命令,因为在__doc__中将<cmd>声明后加了`...`所以这里获得的对象就是一个list
         cmd = kwargs['<cmd>']
-        # 将cmd从字符串的形式转化成列表形式，以方便下面subprocess的执行
-        cmd = cmd.split()
+
         ip_last_octet = 103 # TODO : configurable
 
         #通过传入的镜像名字，从而获得镜像的json文件(里面存储有镜像的manifest)
