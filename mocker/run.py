@@ -28,6 +28,11 @@ class RunCommand(BaseDockerCommand):
         images = ImagesCommand().list_images()
         # 获得镜像的名字
         image_name = kwargs['<name>']
+        # 转化为image的目录名字
+        if image_name.startswith("library"):
+            raise ValueError("mocker image name can not start with library")
+        else:
+            image_name = "library/"+image_name 
         # 允许用户自定义在启动容器的时候执行的命令,因为在__doc__中将<cmd>声明后加了`...`所以这里获得的对象就是一个list
         cmd = kwargs['<cmd>']
 
