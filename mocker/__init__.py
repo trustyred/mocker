@@ -25,7 +25,7 @@ __doc__ = """Mocker.
 
 Usage:
   mocker pull <name>[<tag>]
-  mocker run <name> [<cmd>]...
+  mocker run <name> [<cmd>]...  
   mocker images
   mocker (-h | --help)
   mocker --version
