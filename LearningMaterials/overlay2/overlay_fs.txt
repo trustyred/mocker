@@ -102,6 +102,7 @@ At mount time, the two directories given as mount options "lowerdir" and
   mount -t overlay overlay -olowerdir=/lower,upperdir=/upper,\
   workdir=/work /merged
 
+
 The "workdir" needs to be an empty directory on the same filesystem
 as upperdir.
 
@@ -111,6 +112,7 @@ is cached in the dentry belonging to the overlay filesystem.  If both
 actual lookups find directories, both are stored and a merged
 directory is created, otherwise only one is stored: the upper if it
 exists, else the lower.
+
 
 Only the lists of names from directories are merged.  Other content
 such as metadata and extended attributes are reported for the upper
